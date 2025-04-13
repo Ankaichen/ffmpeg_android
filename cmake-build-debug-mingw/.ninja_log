@@ -1,0 +1,6 @@
+# ninja log v6
+7	1135	7662319371643361	CMakeFiles/ffmpeg_opengl.dir/main.cpp.obj	fa0e9698b69a7e7d
+1148	1926	7662319383063791	ffmpeg_opengl.exe	fb8ddfd81880cbd3
+8	2504	7662320024855118	build.ninja	baf721f7a418e83
+8	984	7662320029543731	CMakeFiles/ffmpeg_opengl.dir/main.cpp.obj	fa0e9698b69a7e7d
+986	1762	7662320039324451	ffmpeg_opengl.exe	fb8ddfd81880cbd3
