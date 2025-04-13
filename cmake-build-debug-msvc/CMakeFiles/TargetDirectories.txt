@@ -1,3 +1,0 @@
-D:/Work Space/C++/clion/ffmpeg_opengl/cmake-build-debug-msvc/CMakeFiles/ffmpeg_opengl.dir
-D:/Work Space/C++/clion/ffmpeg_opengl/cmake-build-debug-msvc/CMakeFiles/edit_cache.dir
-D:/Work Space/C++/clion/ffmpeg_opengl/cmake-build-debug-msvc/CMakeFiles/rebuild_cache.dir
