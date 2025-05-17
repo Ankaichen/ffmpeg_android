@@ -352,7 +352,8 @@ Java_com_example_ffmpegandroid_XPlay_OpenAudio(JNIEnv *env, jobject thiz) {
     SLAndroidSimpleBufferQueueItf pcmQue = nullptr;
     const SLInterfaceID ids[] = {SL_IID_BUFFERQUEUE};
     const SLboolean req[] = {SL_BOOLEAN_TRUE};
-    re = (*eng)->CreateAudioPlayer(eng, &player, &ds, &audioSink, sizeof(ids) / sizeof(SLInterfaceID), ids, req);
+    re = (*eng)->CreateAudioPlayer(eng, &player, &ds, &audioSink,
+                                   sizeof(ids) / sizeof(SLInterfaceID), ids, req);
     if (re == SL_RESULT_SUCCESS) {
         LOGW("CreateAudioPlayer success!");
     } else {
@@ -382,35 +383,35 @@ Java_com_example_ffmpegandroid_XPlay_OpenAudio(JNIEnv *env, jobject thiz) {
 // 顶点着色器
 #define GET_STR(x) #x
 static const char *vertexShader = GET_STR(
-    attribute vec4 aPosition; // 顶点坐标
-    attribute vec2 aTexCoord; // 材质顶点坐标
-    varying vec2 vTexCoord;   // 输出的材质坐标
+        attribute vec4 aPosition; // 顶点坐标
+        attribute vec2 aTexCoord; // 材质顶点坐标
+        varying vec2 vTexCoord;   // 输出的材质坐标
 
-    void main() {
-        vTexCoord = vec2(aTexCoord.x, 1.f - aTexCoord.y);
-        gl_Position = aPosition;
-    }
+        void main() {
+            vTexCoord = vec2(aTexCoord.x, 1.f - aTexCoord.y);
+            gl_Position = aPosition;
+        }
 );
 
 // 片元着色器 软解码和部分x86硬解码
 static const char *fragmentShaderYUV420P = GET_STR(
-    precision mediump float; // 精度
-    varying vec2 vTexCoord;  // 顶点着色器传递的坐标
-    uniform sampler2D yTexture; // 输入的材质 (灰度)
-    uniform sampler2D uTexture;
-    uniform sampler2D vTexture;
+        precision mediump float; // 精度
+        varying vec2 vTexCoord;  // 顶点着色器传递的坐标
+        uniform sampler2D yTexture; // 输入的材质 (灰度)
+        uniform sampler2D uTexture;
+        uniform sampler2D vTexture;
 
-    void main() {
-        vec3 yuv;
-        vec3 rgb;
-        yuv.r = texture2D(yTexture, vTexCoord).r;
-        yuv.g = texture2D(uTexture, vTexCoord).r - 0.5;
-        yuv.b = texture2D(vTexture, vTexCoord).r - 0.5;
-        rgb = mat3(     1.f,       1.f,      1.f,
-                        0.f, -0.39465f, 2.03211f,
-                   1.13983f,  -0.5806f,      0.f) * yuv;
-        gl_FragColor = vec4(rgb.rgb, 1.f);
-    }
+        void main() {
+            vec3 yuv;
+            vec3 rgb;
+            yuv.r = texture2D(yTexture, vTexCoord).r;
+            yuv.g = texture2D(uTexture, vTexCoord).r - 0.5;
+            yuv.b = texture2D(vTexture, vTexCoord).r - 0.5;
+            rgb = mat3(1.f, 1.f, 1.f,
+                       0.f, -0.39465f, 2.03211f,
+                       1.13983f, -0.5806f, 0.f) * yuv;
+            gl_FragColor = vec4(rgb.rgb, 1.f);
+        }
 
 );
 
@@ -473,7 +474,7 @@ Java_com_example_ffmpegandroid_XPlay_OpenYuv(JNIEnv *env, jobject thiz, jstring 
             EGL_BLUE_SIZE, 8,
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_NONE
     };
-    if (EGL_TRUE != eglChooseConfig(display, configSpec, &config, 1, &configNum) ) {
+    if (EGL_TRUE != eglChooseConfig(display, configSpec, &config, 1, &configNum)) {
         LOGW("eglChooseConfig failed!");
         return;
     }
@@ -556,7 +557,8 @@ Java_com_example_ffmpegandroid_XPlay_OpenYuv(JNIEnv *env, jobject thiz, jstring 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // 设置纹理的格式和大小
-    glTexImage2D(GL_TEXTURE_2D, 0, /* 灰度图 */ GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+    glTexImage2D(GL_TEXTURE_2D, 0, /* 灰度图 */ GL_LUMINANCE, width, height, 0, GL_LUMINANCE,
+                 GL_UNSIGNED_BYTE,
                  nullptr);
 
     // 设置纹理属性
@@ -564,7 +566,8 @@ Java_com_example_ffmpegandroid_XPlay_OpenYuv(JNIEnv *env, jobject thiz, jstring 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // 设置纹理的格式和大小
-    glTexImage2D(GL_TEXTURE_2D, 0, /* 灰度图 */ GL_LUMINANCE, width / 2, height / 2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+    glTexImage2D(GL_TEXTURE_2D, 0, /* 灰度图 */ GL_LUMINANCE, width / 2, height / 2, 0,
+                 GL_LUMINANCE, GL_UNSIGNED_BYTE,
                  nullptr);
 
     // 设置纹理属性
@@ -572,14 +575,15 @@ Java_com_example_ffmpegandroid_XPlay_OpenYuv(JNIEnv *env, jobject thiz, jstring 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // 设置纹理的格式和大小
-    glTexImage2D(GL_TEXTURE_2D, 0, /* 灰度图 */ GL_LUMINANCE, width / 2, height / 2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+    glTexImage2D(GL_TEXTURE_2D, 0, /* 灰度图 */ GL_LUMINANCE, width / 2, height / 2, 0,
+                 GL_LUMINANCE, GL_UNSIGNED_BYTE,
                  nullptr);
 
     // 纹理的修改和显示
     unsigned char *buf[3] = {0};
-    buf[0] = new unsigned char [width * height];
-    buf[1] = new unsigned char [width * height / 4];
-    buf[2] = new unsigned char [width * height / 4];
+    buf[0] = new unsigned char[width * height];
+    buf[1] = new unsigned char[width * height / 4];
+    buf[2] = new unsigned char[width * height / 4];
 
     for (;;) {
 
@@ -617,4 +621,40 @@ Java_com_example_ffmpegandroid_XPlay_OpenYuv(JNIEnv *env, jobject thiz, jstring 
         LOGW("glDrawArrays success!");
     }
     env->ReleaseStringUTFChars(url, path);
+}
+
+
+#include "FFDemux.h"
+#include "FFDecode.h"
+#include "XLog.h"
+#include "IObserver.h"
+
+class TestObs : public IObserver {
+public:
+    void Update(XData d) override {
+        // XLOGI("TestObs Update data size is %d", d.size);
+    }
+};
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_ffmpegandroid_XPlay_Test(JNIEnv *env, jobject thiz) {
+    IDemux *de = new FFDemux();
+    de->Open("/sdcard/1080.mp4");
+
+    IDecode *vdecode = new FFDecode();
+    vdecode->Open(de->GetVPara());
+
+    IDecode *adecode = new FFDecode();
+    adecode->Open(de->GetAPara());
+    de->AddObs(vdecode);
+    de->AddObs(adecode);
+
+    vdecode->Start();
+    adecode->Start();
+    de->Start();
+
+//    delete de;
+//    delete vdecode;
+//    delete adecode;
 }

@@ -27,7 +27,8 @@ public class XPlay extends SurfaceView implements Runnable, SurfaceHolder.Callba
 //        this.Open("/sdcard/test2.flv", getHolder().getSurface());
 //        this.Open("/sdcard/test3.mp4", getHolder().getSurface());
 //        this.OpenAudio();
-        this.OpenYuv("/sdcard/test.yuv", getHolder().getSurface());
+//        this.OpenYuv("/sdcard/test.yuv", getHolder().getSurface());
+        this.Test();
     }
 
     @Override
@@ -48,4 +49,6 @@ public class XPlay extends SurfaceView implements Runnable, SurfaceHolder.Callba
     public native void OpenAudio();
 
     public native void OpenYuv(String url, Object surface);
+
+    public native void Test();
 }
