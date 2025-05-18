@@ -18,8 +18,6 @@ public:
 
     XData RecvFrame() override;
 
-
-
 protected:
     AVCodecContext *codec = nullptr;
     AVFrame *frame = nullptr;

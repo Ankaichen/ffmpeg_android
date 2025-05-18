@@ -61,9 +61,12 @@ XData FFDecode::RecvFrame() {
     d.data = reinterpret_cast<unsigned char *>(frame);
     if (this->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
         d.size = (frame->linesize[0] + frame->linesize[1] + frame->linesize[2]) * frame->height;
-    } else if (this->codec->codec_type) {
+        d.width = frame->width;
+        d.height = frame->height;
+    } else if (this->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
         // 样本字节数 * 单通道样本数 * 通道数
         d.size = av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->nb_samples * 2;
     }
+    memcpy(d.dates, frame->data, sizeof(d.dates));
     return d;
 }

@@ -56,7 +56,7 @@ XParameter FFDemux::GetVPara() {
         return para;
     }
     // 获取视频流索引
-    int re = av_find_best_stream(this->ic, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+    int re = av_find_best_stream(this->ic, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, -1);
     if (re < 0) {
         XLOGE("av_find_best_stream failed!");
         return para;
@@ -73,7 +73,7 @@ XParameter FFDemux::GetAPara() {
         return para;
     }
     // 获取音频流索引
-    int re = av_find_best_stream(this->ic, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+    int re = av_find_best_stream(this->ic, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, -1);
     if (re < 0) {
         XLOGE("av_find_best_stream failed!");
         return para;
@@ -95,7 +95,7 @@ XData FFDemux::Read() {
 //    XLOGI("pack size is %d, pts is %lld", pkt->size, pkt->pts);
     if (pkt->stream_index == this->audioStream) {
         d.isAudio = true;
-    } else if (pkt->stream_index == videoStream) {
+    } else if (pkt->stream_index == this->videoStream) {
         d.isAudio = false;
     } else {
         av_packet_free(&pkt);

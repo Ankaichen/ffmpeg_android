@@ -33,6 +33,8 @@ public class XPlay extends SurfaceView implements Runnable, SurfaceHolder.Callba
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
+        // 初始化opengl egl显示
+        this.InitView(getHolder().getSurface());
         new Thread(this).start();
     }
 
@@ -51,4 +53,6 @@ public class XPlay extends SurfaceView implements Runnable, SurfaceHolder.Callba
     public native void OpenYuv(String url, Object surface);
 
     public native void Test();
+
+    public native void InitView(Object surface);
 }

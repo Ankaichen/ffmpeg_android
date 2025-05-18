@@ -628,6 +628,12 @@ Java_com_example_ffmpegandroid_XPlay_OpenYuv(JNIEnv *env, jobject thiz, jstring 
 #include "FFDecode.h"
 #include "XLog.h"
 #include "IObserver.h"
+#include "XEGL.h"
+#include "XShader.h"
+#include "IVideoView.h"
+#include "GLVideoView.h"
+
+static IVideoView *view = nullptr;
 
 class TestObs : public IObserver {
 public:
@@ -650,6 +656,9 @@ Java_com_example_ffmpegandroid_XPlay_Test(JNIEnv *env, jobject thiz) {
     de->AddObs(vdecode);
     de->AddObs(adecode);
 
+//    view = new GLVideoView();
+    vdecode->AddObs(view);
+
     vdecode->Start();
     adecode->Start();
     de->Start();
@@ -657,4 +666,12 @@ Java_com_example_ffmpegandroid_XPlay_Test(JNIEnv *env, jobject thiz) {
 //    delete de;
 //    delete vdecode;
 //    delete adecode;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_ffmpegandroid_XPlay_InitView(JNIEnv *env, jobject thiz, jobject surface) {
+    ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
+    view = new GLVideoView();
+    view->SetRender(win);
 }
