@@ -7,20 +7,25 @@
 
 #include <android/native_window.h>
 #include <EGL/egl.h>
+#include <mutex>
 
 class CXEGL : public XEGL {
 public:
     EGLDisplay display = EGL_NO_DISPLAY;
     EGLSurface surface = EGL_NO_SURFACE;
     EGLContext context = EGL_NO_CONTEXT;
+    std::mutex mux;
 
     void Draw() override {
+        std::lock_guard<std::mutex> guard(this->mux);
         if (this->display == EGL_NO_DISPLAY || this->surface == EGL_NO_SURFACE) return;
         eglSwapBuffers(this->display, this->surface);
     }
 
     bool Init(void *win) override {
+        this->Close();
         auto *nwin = reinterpret_cast<ANativeWindow *>(win);
+        std::lock_guard<std::mutex> guard(this->mux);
         // 初始化egl
         // display创建和初始化
         this->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -61,12 +66,27 @@ public:
             return false;
         }
         XLOGI("eglCreateContext success!");
-        if (EGL_TRUE != eglMakeCurrent(this->display, this->surface, this->surface, this->context)) {
+        if (EGL_TRUE !=
+            eglMakeCurrent(this->display, this->surface, this->surface, this->context)) {
             XLOGE("eglMakeCurrent failed!");
             return false;
         }
         XLOGI("eglMakeCurrent success!");
         return true;
+    }
+
+    void Close() override {
+        std::lock_guard<std::mutex> guard(this->mux);
+        if (this->display == EGL_NO_DISPLAY) return;
+        eglMakeCurrent(this->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        if (this->surface != EGL_NO_SURFACE)
+            eglDestroySurface(this->display, this->surface);
+        if (this->context != EGL_NO_CONTEXT)
+            eglDestroyContext(this->display, this->context);
+        eglTerminate(this->display);
+        this->display = EGL_NO_DISPLAY;
+        this->surface = EGL_NO_SURFACE;
+        this->context = EGL_NO_CONTEXT;
     }
 };
 

@@ -10,6 +10,11 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
+static double r2d(AVRational r) {
+    if (r.num == 0 || r.den == 0) return 0.;
+    return static_cast<double>(r.num) / static_cast<double>(r.den);
+}
+
 FFDemux::FFDemux() {
     static bool isFirst = true;
     if (isFirst) {
@@ -25,6 +30,8 @@ FFDemux::FFDemux() {
 }
 
 bool FFDemux::Open(std::string_view url) {
+    this->Close();
+    std::unique_lock<std::mutex> guard(this->mux);
     XLOGI("Open file %s begin", url.data());
     int re = avformat_open_input(&(this->ic), url.data(), nullptr, nullptr);
     if (re != 0) {
@@ -44,12 +51,20 @@ bool FFDemux::Open(std::string_view url) {
     }
     this->totalMs = static_cast<int>(this->ic->duration / (AV_TIME_BASE / 1000));
     XLOGI("total ms = %d", this->totalMs);
+    guard.unlock();
     this->GetVPara();
     this->GetAPara();
     return true;
 }
 
+void FFDemux::Close() {
+    std::lock_guard<std::mutex> guard(this->mux);
+    if (this->ic)
+        avformat_close_input(&this->ic);
+}
+
 XParameter FFDemux::GetVPara() {
+    std::lock_guard<std::mutex> guard(this->mux);
     XParameter para{};
     if (this->ic == nullptr) {
         XLOGE("GetVPara failed, ic is nullptr!");
@@ -67,6 +82,7 @@ XParameter FFDemux::GetVPara() {
 }
 
 XParameter FFDemux::GetAPara() {
+    std::lock_guard<std::mutex> guard(this->mux);
     XParameter para{};
     if (this->ic == nullptr) {
         XLOGE("GetAPara failed, ic is nullptr!");
@@ -80,10 +96,13 @@ XParameter FFDemux::GetAPara() {
     }
     this->audioStream = re;
     para.para = ic->streams[re]->codecpar;
+    para.channels = ic->streams[re]->codecpar->channels;
+    para.sample_rate = ic->streams[re]->codecpar->sample_rate;
     return para;
 }
 
 XData FFDemux::Read() {
+    std::lock_guard<std::mutex> guard(this->mux);
     if (!this->ic) return {};
     XData d;
     AVPacket *pkt = av_packet_alloc();
@@ -103,5 +122,27 @@ XData FFDemux::Read() {
     }
     d.data = reinterpret_cast<unsigned char *>(pkt);
     d.size = pkt->size;
+    // 转换pts
+    pkt->pts = pkt->pts * 1000 * r2d(ic->streams[pkt->stream_index]->time_base);
+    pkt->dts = pkt->dts * 1000 * r2d(ic->streams[pkt->stream_index]->time_base);
+    d.pts = static_cast<long long>(pkt->pts);
     return d;
+}
+
+bool FFDemux::Seek(double pos) {
+    bool re = false;
+    if (pos < 0 || pos > 1) {
+        XLOGE("Seek value must be 0.0 - 1.0");
+        return re;
+    }
+    std::lock_guard<std::mutex> guard(this->mux);
+    if (this->ic == nullptr) return re;
+    // 清除读取的缓冲
+    avformat_flush(this->ic);
+    long long seekPts = 0;
+    seekPts = this->ic->streams[this->videoStream]->duration * pos;
+    // 往后跳转到关键帧
+    re = av_seek_frame(this->ic, this->videoStream, seekPts,
+                       AVSEEK_FLAG_FRAME | AVSEEK_FLAG_BACKWARD);
+    return re;
 }

@@ -15,10 +15,12 @@ void XSleep(int mis) {
     this_thread::sleep_for(du);
 }
 
-void XThread::Start() {
+bool XThread::Start() {
     this->isExit = false;
+    this->isPause = false;
     thread th(&XThread::ThreadMain, this);
     th.detach();
+    return true;
 }
 
 void XThread::ThreadMain() {
@@ -39,4 +41,14 @@ void XThread::Stop() {
         XSleep(1);
     }
     XLOGI("Stop XThread failed!");
+}
+
+void XThread::SetPause(bool isP) {
+    this->isPause = isP;
+    for (int i = 0; i < 10; ++i) {
+        if (this->isPausing == isP) {
+            break;
+        }
+        XSleep(10);
+    }
 }

@@ -7,6 +7,8 @@
 
 #include "IDemux.h"
 
+#include <mutex>
+
 class AVFormatContext;
 
 class FFDemux : public IDemux {
@@ -15,6 +17,10 @@ public:
     FFDemux();
 
     bool Open(std::string_view url) override;
+
+    bool Seek(double pos) override;
+
+    void Close() override;
 
     XParameter GetVPara() override;
 
@@ -25,6 +31,7 @@ public:
 private:
     AVFormatContext *ic{nullptr};
     int audioStream = 1, videoStream = 0;
+    std::mutex mux;
 };
 
 

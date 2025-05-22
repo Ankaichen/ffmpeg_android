@@ -1,49 +1,55 @@
 package com.example.ffmpegandroid;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.opengl.GLSurfaceView;
+import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.Surface;
+import android.view.TextureView;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 
-public class XPlay extends SurfaceView implements Runnable, SurfaceHolder.Callback {
+public class XPlay extends TextureView implements TextureView.SurfaceTextureListener, View.OnClickListener {
 
     public XPlay(Context context) {
         super(context);
-        getHolder().addCallback(this);
+        setSurfaceTextureListener(this);
+        setOnClickListener(this);
     }
 
     public XPlay(Context context, AttributeSet attrs) {
         super(context, attrs);
-        getHolder().addCallback(this);
+        setSurfaceTextureListener(this);
+        setOnClickListener(this);
     }
 
     @Override
-    public void run() {
-//        this.Open("/sdcard/1080.mp4", getHolder().getSurface());
-//        this.Open("/sdcard/test1.mp4", getHolder().getSurface());
-//        this.Open("/sdcard/test2.flv", getHolder().getSurface());
-//        this.Open("/sdcard/test3.mp4", getHolder().getSurface());
-//        this.OpenAudio();
-//        this.OpenYuv("/sdcard/test.yuv", getHolder().getSurface());
-        this.Test();
-    }
-
-    @Override
-    public void surfaceCreated(@NonNull SurfaceHolder holder) {
+    public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height) {
         // 初始化opengl egl显示
-        this.InitView(getHolder().getSurface());
-        new Thread(this).start();
+        this.InitView(new Surface(surface));
     }
 
     @Override
-    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int w, int h) {
+    public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height) {
+
     }
 
     @Override
-    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+    public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        PlayOrPause();
     }
 
     public native void Open(String url, Object surface);
@@ -55,4 +61,5 @@ public class XPlay extends SurfaceView implements Runnable, SurfaceHolder.Callba
     public native void Test();
 
     public native void InitView(Object surface);
+    public native void PlayOrPause();
 }

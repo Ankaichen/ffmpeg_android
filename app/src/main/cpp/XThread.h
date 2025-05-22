@@ -12,10 +12,17 @@ public:
     virtual ~XThread() = default;
 
     // 启动线程
-    virtual void Start();
+    virtual bool Start();
 
     // 安全停止线程
     virtual void Stop();
+
+    virtual void SetPause(bool isP);
+
+    virtual bool IsPause() {
+        isPausing = isPause;
+        return isPause;
+    }
 
     // 入口主函数
     virtual void Main() {}
@@ -26,6 +33,8 @@ private:
 protected:
     bool isExit{false};
     bool isRunning{false};
+    bool isPause{false};
+    bool isPausing{false};
 };
 
 

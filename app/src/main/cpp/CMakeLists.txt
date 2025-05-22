@@ -44,7 +44,8 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
         native-lib.cpp IDemux.cpp FFDemux.cpp XData.cpp XLog.cpp XThread.cpp IObserver.cpp
         IDecode.cpp FFDecode.cpp XParameter.cpp IVideoView.cpp GLVideoView.cpp XTexture.cpp
-        XShader.cpp XEGL.cpp
+        XShader.cpp XEGL.cpp IResample.cpp FFResample.cpp IAudioPlay.cpp SLAudioPlay.cpp
+        IPlayer.cpp IPlayBuilder.cpp FFPlayBuilder.cpp IPlayerPorxy.cpp
 )
 
 # Specifies libraries CMake should link to your target library. You

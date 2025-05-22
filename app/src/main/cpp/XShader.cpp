@@ -65,7 +65,9 @@ static GLuint InitShader(const char *code, GLint type) {
     return sh;
 }
 
-bool XShader::Init() {
+bool XShader::Init(XShaderType type) {
+    this->Close();
+    std::lock_guard<std::mutex> guard(this->mux);
     // shader初始化
     this->vsh = InitShader(vertexShader, GL_VERTEX_SHADER);
     if (this->vsh == 0) {
@@ -132,6 +134,7 @@ bool XShader::Init() {
 }
 
 void XShader::GetTexture(unsigned int index, int width, int height, unsigned char *buf) {
+    std::lock_guard<std::mutex> guard(this->mux);
     if (this->texts[index] == 0) {
         // 材质初始化
         glGenTextures(1, &(this->texts[index]));
@@ -151,7 +154,24 @@ void XShader::GetTexture(unsigned int index, int width, int height, unsigned cha
 }
 
 void XShader::Draw() {
+    std::lock_guard<std::mutex> guard(this->mux);
     if (!this->program) return;
     // 三维绘制
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+void XShader::Close() {
+    std::lock_guard<std::mutex> guard(this->mux);
+    // 是否shader
+    if (this->program)
+        glDeleteProgram(this->program);
+    if (this->fsh)
+        glDeleteShader(this->fsh);
+    if (this->vsh)
+        glDeleteShader(this->vsh);
+    // 释放材质
+    for (unsigned int &text: this->texts) {
+        if (text) glDeleteTextures(1, &text);
+        text = 0;
+    }
 }

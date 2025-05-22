@@ -11,7 +11,7 @@
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, "testff", __VA_ARGS__)
 
 extern "C" {
-#include <libavcodec//jni.h>
+#include <libavcodec/jni.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
@@ -32,11 +32,11 @@ long long GetNowMs() {
     return t;
 }
 
-extern "C"
-JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *res) {
-    av_jni_set_java_vm(vm, nullptr);
-    return JNI_VERSION_1_4;
-}
+//extern "C"
+//JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *res) {
+//    av_jni_set_java_vm(vm, nullptr);
+//    return JNI_VERSION_1_4;
+//}
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_ffmpegandroid_MainActivity_stringFromJNI(
@@ -624,54 +624,55 @@ Java_com_example_ffmpegandroid_XPlay_OpenYuv(JNIEnv *env, jobject thiz, jstring 
 }
 
 
-#include "FFDemux.h"
-#include "FFDecode.h"
-#include "XLog.h"
-#include "IObserver.h"
-#include "XEGL.h"
-#include "XShader.h"
-#include "IVideoView.h"
-#include "GLVideoView.h"
+#include "IPlayerPorxy.h"
 
-static IVideoView *view = nullptr;
-
-class TestObs : public IObserver {
-public:
-    void Update(XData d) override {
-        // XLOGI("TestObs Update data size is %d", d.size);
-    }
-};
+extern "C"
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *res) {
+    IPlayerPorxy::Get()->Init(vm);
+    return JNI_VERSION_1_4;
+}
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_ffmpegandroid_XPlay_Test(JNIEnv *env, jobject thiz) {
-    IDemux *de = new FFDemux();
-    de->Open("/sdcard/1080.mp4");
-
-    IDecode *vdecode = new FFDecode();
-    vdecode->Open(de->GetVPara());
-
-    IDecode *adecode = new FFDecode();
-    adecode->Open(de->GetAPara());
-    de->AddObs(vdecode);
-    de->AddObs(adecode);
-
-//    view = new GLVideoView();
-    vdecode->AddObs(view);
-
-    vdecode->Start();
-    adecode->Start();
-    de->Start();
-
-//    delete de;
-//    delete vdecode;
-//    delete adecode;
+//    IPlayerPorxy::Get()->Open("/sdcard/1080.mp4");
+//    IPlayerPorxy::Get()->Start();
+//    XSleep(5000);
+//    IPlayerPorxy::Get()->Open("/sdcard/test1.mp4");
+//    IPlayerPorxy::Get()->Start();
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_ffmpegandroid_XPlay_InitView(JNIEnv *env, jobject thiz, jobject surface) {
     ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
-    view = new GLVideoView();
-    view->SetRender(win);
+    IPlayerPorxy::Get()->InitView(win);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_ffmpegandroid_OpenUrl_Open(JNIEnv *env, jobject thiz, jstring url) {
+    const char *path = env->GetStringUTFChars(url, 0);
+
+    IPlayerPorxy::Get()->Open(path);
+    IPlayerPorxy::Get()->Start();
+
+    env->ReleaseStringUTFChars(url, path);
+}
+
+extern "C"
+JNIEXPORT jdouble JNICALL
+Java_com_example_ffmpegandroid_MainActivity_PlayPos(JNIEnv *env, jobject thiz) {
+    return IPlayerPorxy::Get()->PlayPos();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_ffmpegandroid_MainActivity_Seek(JNIEnv *env, jobject thiz, jdouble pos) {
+    IPlayerPorxy::Get()->Seek(pos);
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_ffmpegandroid_XPlay_PlayOrPause(JNIEnv *env, jobject thiz) {
+    IPlayerPorxy::Get()->SetPause(!IPlayerPorxy::Get()->IsPause());
 }

@@ -13,6 +13,7 @@ public:
     virtual void SetRender(void *win) = 0;
     virtual void Render(XData data) = 0;
     void Update(XData data) override;
+    virtual void Close() = 0;
 };
 
 

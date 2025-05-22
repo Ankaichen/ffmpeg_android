@@ -7,12 +7,18 @@
 
 #include "IDecode.h"
 
+#include <mutex>
+
 class AVCodecContext;
 class AVFrame;
 
 class FFDecode : public IDecode {
 public:
-    bool Open(XParameter para) override;
+    static void InitHard(void * vm);
+
+    bool Open(XParameter para, bool isHard) override;
+
+    virtual void Close();
 
     bool SendPacket(XData pkt) override;
 
@@ -21,6 +27,7 @@ public:
 protected:
     AVCodecContext *codec = nullptr;
     AVFrame *frame = nullptr;
+    std::mutex mux;
 };
 
 

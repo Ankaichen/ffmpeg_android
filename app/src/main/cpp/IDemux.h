@@ -19,6 +19,11 @@ public:
     // 打开文件 或者流媒体 rmtp http rtsp
     virtual bool Open(std::string_view url) = 0;
 
+    // pos 0.0 - 1.0
+    virtual bool Seek(double pos) = 0;
+
+    virtual void Close() = 0;
+
     // 获取视频参数
     virtual XParameter GetVPara() = 0;
 
@@ -27,6 +32,8 @@ public:
 
     // 读取一帧数据 数据由调用者清理
     virtual XData Read() = 0;
+
+    inline int getTotalMs() const { return this->totalMs; }
 
 protected:
     void Main() override;

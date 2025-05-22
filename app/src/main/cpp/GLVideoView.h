@@ -7,15 +7,22 @@
 
 #include "IVideoView.h"
 
+#include <mutex>
+
 class XTexture;
 
 class GLVideoView : public IVideoView {
 public:
     void SetRender(void *win) override;
+
     void Render(XData data) override;
+
+    void Close() override;
+
 protected:
     void *view = nullptr;
     XTexture *txt = nullptr;
+    std::mutex mux;
 };
 
 

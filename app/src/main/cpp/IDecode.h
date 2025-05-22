@@ -14,7 +14,11 @@
 class IDecode : public IObserver {
 public:
     // 打开解码器
-    virtual bool Open(XParameter para) = 0;
+    virtual bool Open(XParameter para, bool isHard) = 0;
+
+    virtual void Close() = 0;
+
+    virtual void Clear();
 
     // future模型 发送数据到线程解码
     virtual bool SendPacket(XData pkt) = 0;
@@ -29,6 +33,10 @@ public:
 
     void setMaxList(int m) { this->maxList = m; }
 
+    void setSynPts(long long pts) { this->synPts = pts; }
+
+    long long getPts() const { return this->pts; }
+
 protected:
     void Main() override;
 
@@ -38,7 +46,11 @@ protected:
     std::list<XData> packs;
     std::mutex packsMutex;
     // 最大队列缓冲
-    int maxList{ 100 };
+    int maxList{100};
+    // 同步时间 再次打开文件要清理
+    long long synPts = 0;
+    // 当前播放到的位置
+    long long pts = 0;
 };
 
 
